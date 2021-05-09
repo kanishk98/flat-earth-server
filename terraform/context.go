@@ -424,6 +424,19 @@ func (c *Context) Graph(typ GraphType, opts *ContextGraphOpts) (*Graph, tfdiags.
 	}
 }
 
+func (c *Context) FlatEarthGraph() []GraphTransformer {
+	return (&PlanGraphBuilder{
+		Config:       c.config,
+		State:        c.state,
+		Components:   c.components,
+		Schemas:      c.schemas,
+		Targets:      c.targets,
+		ForceReplace: c.forceReplace,
+		Validate:     false,
+		skipRefresh:  c.skipRefresh,
+	}).Steps()
+}
+
 // State returns a copy of the current state associated with this context.
 //
 // This cannot safely be called in parallel with any other Context function.
