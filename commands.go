@@ -13,10 +13,7 @@ import (
 	"github.com/hashicorp/terraform/addrs"
 	"github.com/hashicorp/terraform/command"
 	"github.com/hashicorp/terraform/command/cliconfig"
-	"github.com/hashicorp/terraform/command/views"
-	"github.com/hashicorp/terraform/command/webbrowser"
 	"github.com/hashicorp/terraform/internal/getproviders"
-	"github.com/hashicorp/terraform/internal/terminal"
 	pluginDiscovery "github.com/hashicorp/terraform/plugin/discovery"
 )
 
@@ -50,7 +47,6 @@ var Ui cli.Ui
 
 func initCommands(
 	originalWorkingDir string,
-	streams *terminal.Streams,
 	config *cliconfig.Config,
 	services *disco.Disco,
 	providerSrc getproviders.Source,
@@ -81,15 +77,10 @@ func initCommands(
 
 	meta := command.Meta{
 		OriginalWorkingDir: originalWorkingDir,
-		Streams:            streams,
-		View:               views.NewView(streams).SetRunningInAutomation(inAutomation),
 
-		Color:            true,
 		GlobalPluginDirs: globalPluginDirs(),
-		Ui:               Ui,
 
-		Services:        services,
-		BrowserLauncher: webbrowser.NewNativeLauncher(),
+		Services: services,
 
 		RunningInAutomation: inAutomation,
 		CLIConfigDir:        configDir,
