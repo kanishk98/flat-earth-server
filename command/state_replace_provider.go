@@ -179,21 +179,17 @@ Options:
 
   -auto-approve           Skip interactive approval.
 
-  -backup=PATH            Path where Terraform should write the backup for the
-						  state file. This can't be disabled. If not set,
-						  Terraform will write it to the same path as the state
-						  file with a ".backup" extension.
-
-  -lock=true              Lock the state files when locking is supported.
+  -lock=false             Don't hold a state lock during the operation. This is
+                          dangerous if others might concurrently run commands
+                          against the same workspace.
 
   -lock-timeout=0s        Duration to retry a state lock.
 
-  -state=PATH             Path to the state file to update. Defaults to the
-						  configured backend, or "terraform.tfstate"
+  -ignore-remote-version  A rare option used for the remote backend only. See
+                          the remote backend documentation for more information.
 
-  -ignore-remote-version  Continue even if remote and local Terraform versions
-                          are incompatible. This may result in an unusable
-                          workspace, and should be used with extreme caution.
+  -state, state-out, and -backup are legacy options supported for the local
+  backend only. For more information, see the local backend's documentation.
 
 `
 	return strings.TrimSpace(helpText)

@@ -10,7 +10,6 @@ import (
 	"github.com/hashicorp/terraform/command/arguments"
 	"github.com/hashicorp/terraform/command/format"
 	"github.com/hashicorp/terraform/plans"
-	"github.com/hashicorp/terraform/states"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/hashicorp/terraform/tfdiags"
 )
@@ -25,7 +24,7 @@ type Plan interface {
 }
 
 // NewPlan returns an initialized Plan implementation for the given ViewType.
-func NewPlan(vt arguments.ViewType, runningInAutomation bool, view *View) Plan {
+func NewPlan(vt arguments.ViewType, view *View) Plan {
 	switch vt {
 	case arguments.ViewJSON:
 		return &PlanJSON{
@@ -34,7 +33,7 @@ func NewPlan(vt arguments.ViewType, runningInAutomation bool, view *View) Plan {
 	case arguments.ViewHuman:
 		return &PlanHuman{
 			view:         view,
-			inAutomation: runningInAutomation,
+			inAutomation: view.RunningInAutomation(),
 		}
 	default:
 		panic(fmt.Sprintf("unknown view type %v", vt))
@@ -96,7 +95,7 @@ func (v *PlanJSON) HelpPrompt() {
 
 // The plan renderer is used by the Operation view (for plan and apply
 // commands) and the Show view (for the show command).
-func renderPlan(plan *plans.Plan, baseState *states.State, schemas *terraform.Schemas, view *View) {
+func renderPlan(plan *plans.Plan, schemas *terraform.Schemas, view *View) {
 	counts := map[plans.Action]int{}
 	var rChanges []*plans.ResourceInstanceChangeSrc
 	for _, change := range plan.Changes.Resources {
