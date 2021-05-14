@@ -8,6 +8,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/terraform-svchost/disco"
 	"github.com/hashicorp/terraform/addrs"
@@ -78,7 +79,7 @@ func wrappedMain() int {
 		// object checks that and just acts as though no credentials are present.
 		services = disco.NewWithCredentialsSource(nil)
 	}
-	services.SetUserAgent(httpclient.TerraformUserAgent`(version.String()))
+	services.SetUserAgent(httpclient.TerraformUserAgent(version.String()))
 
 	providerSrc, diags := providerSource(config.ProviderInstallation, services)
 	if len(diags) > 0 {
@@ -118,14 +119,14 @@ func wrappedMain() int {
 	}
 
 	commands := getCommands(originalWd, config, services, providerSrc, providerDevOverrides, unmanagedProviders)
-	graph, err := commands["flat-earth"].Run("")
+	args := os.Args[1:]
+	graph, err := commands["flat-earth"].Run(args[0])
 
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Failed to generate FlatEarthGraph: %s", err))
 		return 1
 	}
-
-	fmt.Printf("Graph is: %+v", &graph)
+	spew.Printf("Graph is: %+v", graph)
 
 	// Make sure we clean up any managed plugins at the end of this
 	defer plugin.CleanupClients()
