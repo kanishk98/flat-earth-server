@@ -6,7 +6,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"runtime"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/go-plugin"
@@ -47,18 +46,12 @@ func wrappedMain() int {
 		}
 	}
 
-	log.Printf(
-		"[INFO] Terraform version: %s %s",
-		Version, VersionPrerelease)
-	log.Printf("[INFO] Go runtime version: %s", runtime.Version())
-	log.Printf("[INFO] CLI args: %#v", os.Args)
-
 	// NOTE: We're intentionally calling LoadConfig _before_ handling a possible
 	// -chdir=... option on the command line, so that a possible relative
 	// path in the TERRAFORM_CONFIG_FILE environment variable (though probably
 	// ill-advised) will be resolved relative to the true working directory,
 	// not the overridden one.
-	config, diags := cliconfig.LoadConfig()
+	config, _ := cliconfig.LoadConfig()
 
 	// Get any configured credentials from the config and initialize
 	// a service discovery object. The slightly awkward predeclaration of

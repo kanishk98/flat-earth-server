@@ -145,9 +145,12 @@ func (b *Local) contextDirect(op *backend.Operation, opts terraform.ContextOpts)
 	// Load the configuration using the caller-provided configuration loader.
 	config, configSnap, configDiags := op.ConfigLoader.LoadConfigWithSnapshot(op.ConfigDir)
 	diags = diags.Append(configDiags)
-	if configDiags.HasErrors() {
-		return nil, nil, diags
+	if configDiags != nil {
+		if configDiags.HasErrors() {
+			return nil, nil, diags
+		}
 	}
+
 	opts.Config = config
 
 	var rawVariables map[string]backend.UnparsedVariableValue
