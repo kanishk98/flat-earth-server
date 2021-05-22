@@ -78,6 +78,15 @@ func (b *PlanGraphBuilder) Build(path addrs.ModuleInstance) (*Graph, tfdiags.Dia
 }
 
 // See GraphBuilder
+func (b *PlanGraphBuilder) BuildFlatEarthGraph(path addrs.ModuleInstance) *Graph {
+	return (&BasicGraphBuilder{
+		Steps:    b.Steps(),
+		Validate: b.Validate,
+		Name:     "PlanGraphBuilder",
+	}).BuildFlatEarthGraph(path)
+}
+
+// See GraphBuilder
 func (b *PlanGraphBuilder) Steps() []GraphTransformer {
 	b.once.Do(b.init)
 

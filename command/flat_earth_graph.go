@@ -13,7 +13,7 @@ type FlatEarthGraphCommand struct {
 	Meta
 }
 
-func (c *FlatEarthGraphCommand) Run(configPath string) ([]terraform.GraphTransformer, error) {
+func (c *FlatEarthGraphCommand) Run(configPath string) (*terraform.Graph, error) {
 
 	backendConfig, _ := c.loadBackendConfig(configPath)
 
@@ -42,6 +42,5 @@ func (c *FlatEarthGraphCommand) Run(configPath string) ([]terraform.GraphTransfo
 
 	// Skip validation during graph generation - we want to see the graph even if
 	// it is invalid for some reason.
-	// FIXME: CTX IS NIL
 	return ctx.FlatEarthGraph(), error(nil)
 }

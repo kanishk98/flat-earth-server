@@ -448,7 +448,7 @@ func (c *Context) Graph(typ GraphType, opts *ContextGraphOpts) (*Graph, tfdiags.
 	}
 }
 
-func (c *Context) FlatEarthGraph() []GraphTransformer {
+func (c *Context) FlatEarthGraph() *Graph {
 	return (&PlanGraphBuilder{
 		Config:       c.config,
 		State:        c.state,
@@ -458,7 +458,7 @@ func (c *Context) FlatEarthGraph() []GraphTransformer {
 		ForceReplace: c.forceReplace,
 		Validate:     false,
 		skipRefresh:  c.skipRefresh,
-	}).Steps()
+	}).BuildFlatEarthGraph(addrs.RootModuleInstance)
 }
 
 // State returns a copy of the current state associated with this context.

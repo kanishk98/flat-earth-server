@@ -27,6 +27,10 @@ type BasicGraphBuilder struct {
 	Name string
 }
 
+func (b *BasicGraphBuilder) BuildFlatEarthGraph(path addrs.ModuleInstance) *Graph {
+	return &Graph{Path: path}
+}
+
 func (b *BasicGraphBuilder) Build(path addrs.ModuleInstance) (*Graph, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 	g := &Graph{Path: path}

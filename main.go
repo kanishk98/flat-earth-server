@@ -119,7 +119,11 @@ func wrappedMain() int {
 		log.Fatal(fmt.Sprintf("Failed to generate FlatEarthGraph: %s", err))
 		return 1
 	}
-	spew.Printf("Graph is: %+v", graph)
+	graph_json, err := json.Marshal(graph)
+	if err != nil {
+		fmt.Printf("Failed to convert FlatEarth graph to json: %s\n", err.Error())
+	}
+	spew.Printf("Graph is: %+v\n", string(graph_json))
 
 	// Make sure we clean up any managed plugins at the end of this
 	defer plugin.CleanupClients()

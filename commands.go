@@ -99,5 +99,5 @@ func credentialsSource(config *cliconfig.Config) (auth.CredentialsSource, error)
 }
 
 type FlatEarthCommand interface {
-	Run(configPath string) ([]terraform.GraphTransformer, error)
+	Run(configPath string) (*terraform.Graph, error)
 }
