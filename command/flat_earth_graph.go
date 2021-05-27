@@ -4,7 +4,7 @@ import (
 	"errors"
 
 	"github.com/hashicorp/terraform/backend"
-	"github.com/hashicorp/terraform/terraform"
+	"github.com/hashicorp/terraform/configs"
 )
 
 // FlatEarthGraphCommand is a Command implementation that takes a Terraform
@@ -13,7 +13,7 @@ type FlatEarthGraphCommand struct {
 	Meta
 }
 
-func (c *FlatEarthGraphCommand) Run(configPath string) (*terraform.Graph, error) {
+func (c *FlatEarthGraphCommand) Run(configPath string) (map[string]*configs.Resource, error) {
 
 	backendConfig, _ := c.loadBackendConfig(configPath)
 

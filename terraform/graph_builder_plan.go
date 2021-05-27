@@ -78,12 +78,8 @@ func (b *PlanGraphBuilder) Build(path addrs.ModuleInstance) (*Graph, tfdiags.Dia
 }
 
 // See GraphBuilder
-func (b *PlanGraphBuilder) BuildFlatEarthGraph(path addrs.ModuleInstance) *Graph {
-	return (&BasicGraphBuilder{
-		Steps:    b.Steps(),
-		Validate: b.Validate,
-		Name:     "PlanGraphBuilder",
-	}).BuildFlatEarthGraph(path)
+func (b *PlanGraphBuilder) BuildFlatEarthGraph(path addrs.ModuleInstance) map[string]*configs.Resource {
+	return b.Config.Module.ManagedResources
 }
 
 // See GraphBuilder

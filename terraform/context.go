@@ -448,7 +448,7 @@ func (c *Context) Graph(typ GraphType, opts *ContextGraphOpts) (*Graph, tfdiags.
 	}
 }
 
-func (c *Context) FlatEarthGraph() *Graph {
+func (c *Context) FlatEarthGraph() map[string]*configs.Resource {
 	return (&PlanGraphBuilder{
 		Config:       c.config,
 		State:        c.state,

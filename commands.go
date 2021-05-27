@@ -11,9 +11,9 @@ import (
 	"github.com/hashicorp/terraform/addrs"
 	"github.com/hashicorp/terraform/command"
 	"github.com/hashicorp/terraform/command/cliconfig"
+	"github.com/hashicorp/terraform/configs"
 	"github.com/hashicorp/terraform/internal/getproviders"
 	pluginDiscovery "github.com/hashicorp/terraform/plugin/discovery"
-	"github.com/hashicorp/terraform/terraform"
 )
 
 func getCommands(
@@ -99,5 +99,5 @@ func credentialsSource(config *cliconfig.Config) (auth.CredentialsSource, error)
 }
 
 type FlatEarthCommand interface {
-	Run(configPath string) (*terraform.Graph, error)
+	Run(configPath string) (map[string]*configs.Resource, error)
 }

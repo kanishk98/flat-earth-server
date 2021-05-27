@@ -7,7 +7,6 @@ import (
 	"net"
 	"os"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/terraform-svchost/disco"
 	"github.com/hashicorp/terraform/addrs"
@@ -119,11 +118,11 @@ func wrappedMain() int {
 		log.Fatal(fmt.Sprintf("Failed to generate FlatEarthGraph: %s", err))
 		return 1
 	}
-	graph_json, err := json.Marshal(graph)
+	graphJson, err := json.Marshal(graph)
 	if err != nil {
 		fmt.Printf("Failed to convert FlatEarth graph to json: %s\n", err.Error())
 	}
-	spew.Printf("Graph is: %+v\n", string(graph_json))
+	fmt.Printf(string(graphJson))
 
 	// Make sure we clean up any managed plugins at the end of this
 	defer plugin.CleanupClients()
