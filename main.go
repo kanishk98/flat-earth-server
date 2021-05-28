@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"net/http"
 	"os"
 
 	"github.com/hashicorp/go-plugin"
@@ -25,11 +26,24 @@ const (
 	envTmpLogPath = "TF_TEMP_LOG_PATH"
 )
 
+var commands map[string]FlatEarthCommand
+var args []string
+
 func main() {
 	os.Exit(wrappedMain())
 }
 
 func wrappedMain() int {
+	commands, args := prepCommands()
+	// kanishk98: This is a bit of an anti-pattern. Fix this.
+	if args == nil {
+		return 1
+	}
+	startServer(commands, args)
+	return 0
+}
+
+func prepCommands() (map[string]FlatEarthCommand, []string) {
 	var err error
 
 	tmpLogPath := os.Getenv(envTmpLogPath)
@@ -97,7 +111,7 @@ func wrappedMain() int {
 	unmanagedProviders, err := parseReattachProviders(os.Getenv("TF_REATTACH_PROVIDERS"))
 	if err != nil {
 		log.Fatal(err.Error())
-		return 1
+		return nil, nil
 	}
 
 	// Initialize the backends.
@@ -107,27 +121,35 @@ func wrappedMain() int {
 	if err != nil {
 		// It would be very strange to end up here
 		log.Fatal(fmt.Sprintf("Failed to determine current working directory: %s", err))
-		return 1
+		return nil, nil
 	}
 
-	commands := getCommands(originalWd, config, services, providerSrc, providerDevOverrides, unmanagedProviders)
-	args := os.Args[1:]
+	commands = getCommands(originalWd, config, services, providerSrc, providerDevOverrides, unmanagedProviders)
+	args = os.Args[1:]
+	return commands, args
+}
+
+func getFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	graph, err := commands["flat-earth"].Run(args[0])
 
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Failed to generate FlatEarthGraph: %s", err))
-		return 1
+		panic(err)
 	}
-	graphJson, err := json.Marshal(graph)
+
+	graphBytes, err := json.Marshal(graph)
+
 	if err != nil {
-		fmt.Printf("Failed to convert FlatEarth graph to json: %s\n", err.Error())
+		log.Fatal(fmt.Sprintf("Failed to generate JSON equivalent of FlatEarthGraph: %s", err))
+		panic(err)
 	}
-	fmt.Printf(string(graphJson))
 
-	// Make sure we clean up any managed plugins at the end of this
-	defer plugin.CleanupClients()
+	w.Write(graphBytes)
+}
 
-	return 0
+func startServer(commands map[string]FlatEarthCommand, args []string) {
+	http.HandleFunc("/flat-earth-graph", getFlatEarthGraph)
+	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 // parse information on reattaching to unmanaged providers out of a
