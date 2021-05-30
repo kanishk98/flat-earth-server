@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net"
-	"net/http"
 	"os"
 
 	"github.com/hashicorp/go-plugin"
@@ -127,29 +126,6 @@ func prepCommands() (map[string]FlatEarthCommand, []string) {
 	commands = getCommands(originalWd, config, services, providerSrc, providerDevOverrides, unmanagedProviders)
 	args = os.Args[1:]
 	return commands, args
-}
-
-func getFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
-	graph, err := commands["flat-earth"].Run(args[0])
-
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Failed to generate FlatEarthGraph: %s", err))
-		panic(err)
-	}
-
-	graphBytes, err := json.Marshal(graph)
-
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Failed to generate JSON equivalent of FlatEarthGraph: %s", err))
-		panic(err)
-	}
-
-	w.Write(graphBytes)
-}
-
-func startServer(commands map[string]FlatEarthCommand, args []string) {
-	http.HandleFunc("/flat-earth-graph", getFlatEarthGraph)
-	log.Fatal(http.ListenAndServe(":8080", nil))
 }
 
 // parse information on reattaching to unmanaged providers out of a
