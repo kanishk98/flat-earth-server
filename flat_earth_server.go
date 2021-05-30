@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type FlatEarthGraphUpdateRequest struct {
@@ -14,7 +15,13 @@ type FlatEarthGraphUpdateRequest struct {
 	NewValue      string
 }
 
-func getFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
+func generateFlatEarthGraph() []byte {
 	graph, err := commands["flat-earth"].Run(args[0])
 
 	if err != nil {
@@ -28,7 +35,11 @@ func getFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 		log.Fatal(fmt.Sprintf("Failed to generate JSON equivalent of FlatEarthGraph: %s", err))
 		panic(err)
 	}
+	return graphBytes
+}
 
+func getFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
+	graphBytes := generateFlatEarthGraph()
 	w.Write(graphBytes)
 }
 
@@ -43,6 +54,19 @@ func updateFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+	graph, _ := commands["flat-earth"].Run(args[0])
+	fileName := graph[updateRequest.NodeKey].DeclRange.Filename
+	// kanishk98: Possibilities of the key not getting found here, handle that
+	attrs, _ := graph[updateRequest.NodeKey].Config.JustAttributes()
+	start := attrs[updateRequest.AttributeName].Expr.Range().Start
+	end := attrs[updateRequest.AttributeName].Expr.Range().End
+	tfBytes, err := ioutil.ReadFile(fileName)
+	check(err)
+	lines := strings.Split(string(tfBytes), "\n")
+	fmt.Printf("%+v %+v %+v", start, end, lines)
+	// how would we handle multi-line updates, if necessary?
+	// should we consider replacing bytes instead?
+	// how does this happen across systems
 	// carry out update magic here, then re-generate graph and return it
 	getFlatEarthGraph(w, r)
 }
