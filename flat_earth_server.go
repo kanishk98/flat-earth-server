@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"strings"
 )
 
 type FlatEarthGraphUpdateRequest struct {
@@ -62,12 +61,11 @@ func updateFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	end := attrs[updateRequest.AttributeName].Expr.Range().End
 	tfBytes, err := ioutil.ReadFile(fileName)
 	check(err)
-	lines := strings.Split(string(tfBytes), "\n")
-	fmt.Printf("%+v %+v %+v", start, end, lines)
-	// how would we handle multi-line updates, if necessary?
-	// should we consider replacing bytes instead?
-	// how does this happen across systems
-	// carry out update magic here, then re-generate graph and return it
+	startBytes := tfBytes[:start.Byte]
+	endBytes := tfBytes[end.Byte]
+	newString := string(startBytes) + updateRequest.NewValue + string(endBytes)
+	err = ioutil.WriteFile("./stuff.tf", []byte(newString), 0644)
+	check(err)
 	getFlatEarthGraph(w, r)
 }
 

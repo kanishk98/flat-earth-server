@@ -116,15 +116,10 @@ func prepCommands() (map[string]FlatEarthCommand, []string) {
 	// Initialize the backends.
 	backendInit.Init(services)
 
-	originalWd, err := os.Getwd()
-	if err != nil {
-		// It would be very strange to end up here
-		log.Fatal(fmt.Sprintf("Failed to determine current working directory: %s", err))
-		return nil, nil
-	}
+	args = os.Args[1:]
+	originalWd := args[0]
 
 	commands = getCommands(originalWd, config, services, providerSrc, providerDevOverrides, unmanagedProviders)
-	args = os.Args[1:]
 	return commands, args
 }
 
