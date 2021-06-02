@@ -11,7 +11,7 @@ import (
 type FlatEarthGraphUpdateRequest struct {
 	NodeKey       string
 	AttributeName string
-	NewValue      []byte
+	NewValue      string
 }
 
 func check(e error) {
@@ -61,9 +61,10 @@ func updateFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	end := attrs[updateRequest.AttributeName].Expr.Range().End
 	tfBytes, err := ioutil.ReadFile(fileName)
 	check(err)
-	newBytes := append(tfBytes[start.Byte+1:], updateRequest.NewValue...)
-	newBytes = append(newBytes, tfBytes[end.Byte+1:]...)
-	err = ioutil.WriteFile("./stuff.tf", newBytes, 0644)
+	startBytes := tfBytes[:start.Byte]
+	endBytes := tfBytes[end.Byte]
+	newString := string(startBytes) + updateRequest.NewValue + string(endBytes)
+	err = ioutil.WriteFile("./stuff.tf", []byte(newString), 0644)
 	check(err)
 	getFlatEarthGraph(w, r)
 }
