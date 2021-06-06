@@ -62,9 +62,9 @@ func updateFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	tfBytes, err := ioutil.ReadFile(fileName)
 	check(err)
 	startBytes := tfBytes[:start.Byte]
-	endBytes := tfBytes[end.Byte]
+	endBytes := tfBytes[end.Byte:]
 	newString := string(startBytes) + updateRequest.NewValue + string(endBytes)
-	err = ioutil.WriteFile("./stuff.tf", []byte(newString), 0644)
+	err = ioutil.WriteFile(fileName, []byte(newString), 0644)
 	check(err)
 	getFlatEarthGraph(w, r)
 }

@@ -33,3 +33,7 @@ vendor/
 
 # Coverage
 coverage.txt
+
+# Debugging
+
+__debug_bin
