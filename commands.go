@@ -18,6 +18,7 @@ import (
 
 func getCommands(
 	originalWorkingDir string,
+	dataDir string,
 	config *cliconfig.Config,
 	services *disco.Disco,
 	providerSrc getproviders.Source,
@@ -39,8 +40,6 @@ func getCommands(
 	if err != nil {
 		configDir = "" // No config dir available (e.g. looking up a home directory failed)
 	}
-
-	dataDir := os.Getenv("TF_DATA_DIR")
 
 	meta := command.Meta{
 		OriginalWorkingDir: originalWorkingDir,

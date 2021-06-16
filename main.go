@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"path/filepath"
 
 	"github.com/hashicorp/go-plugin"
 	"github.com/hashicorp/terraform-svchost/disco"
@@ -119,7 +120,7 @@ func prepCommands() (map[string]FlatEarthCommand, []string) {
 	args = os.Args[1:]
 	originalWd := args[0]
 
-	commands = getCommands(originalWd, config, services, providerSrc, providerDevOverrides, unmanagedProviders)
+	commands = getCommands(originalWd, filepath.Join(originalWd, ".terraform"), config, services, providerSrc, providerDevOverrides, unmanagedProviders)
 	return commands, args
 }
 
