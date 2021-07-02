@@ -33,12 +33,22 @@ func (c *FlatEarthGraphCommand) Run(configPath string) (map[string]*configs.Reso
 
 	// Build the operation
 	opReq := c.Operation(b)
+	err := error(nil)
 	opReq.ConfigDir = configPath
-	opReq.ConfigLoader, _ = c.initConfigLoader()
+	opReq.ConfigLoader, err = c.initConfigLoader()
+
+	if err != nil {
+		return nil, err
+	}
+
 	opReq.AllowUnsetVariables = true
 
 	// Get the context
-	ctx, _, _ := local.Context(opReq)
+	ctx, _, diags := local.Context(opReq)
+
+	if diags.HasErrors() {
+		return nil, diags.Err()
+	}
 
 	// Skip validation during graph generation - we want to see the graph even if
 	// it is invalid for some reason.
