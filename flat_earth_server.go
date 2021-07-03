@@ -72,5 +72,6 @@ func updateFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 func startServer(commands map[string]FlatEarthCommand, args []string) {
 	http.HandleFunc("/get-flat-earth-graph", getFlatEarthGraph)
 	http.HandleFunc("/update-flat-earth-graph", updateFlatEarthGraph)
+	log.Println("Starting server 💩")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
