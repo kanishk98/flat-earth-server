@@ -70,6 +70,9 @@ func getCommands(
 		"flat-earth": &command.FlatEarthGraphCommand{
 			Meta: meta,
 		},
+		"provider-schema": &command.FlatEarthGraphCommand{
+			Meta: meta,
+		},
 	}
 	return commands
 }
@@ -99,4 +102,5 @@ func credentialsSource(config *cliconfig.Config) (auth.CredentialsSource, error)
 
 type FlatEarthCommand interface {
 	Run(configPath string) (map[string]*configs.Resource, error)
+	GetProviderSchema(configPath string) ([]byte, error)
 }

@@ -22,14 +22,8 @@ func check(e error) {
 
 func generateFlatEarthGraph() []byte {
 	graph, err := commands["flat-earth"].Run(args[0])
-
-	if err != nil {
-		log.Fatal(fmt.Sprintf("Failed to generate FlatEarthGraph: %s", err))
-		panic(err)
-	}
-
+	check(err)
 	graphBytes, err := json.Marshal(graph)
-
 	if err != nil {
 		log.Fatal(fmt.Sprintf("Failed to generate JSON equivalent of FlatEarthGraph: %s", err))
 		panic(err)
@@ -44,15 +38,11 @@ func getFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 
 func updateFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		panic(err)
-	}
+	check(err)
 	log.Println(string(body))
 	var updateRequest FlatEarthGraphUpdateRequest
 	err = json.Unmarshal(body, &updateRequest)
-	if err != nil {
-		panic(err)
-	}
+	check(err)
 	graph, _ := commands["flat-earth"].Run(args[0])
 	fileName := graph[updateRequest.NodeKey].DeclRange.Filename
 	// kanishk98: Possibilities of the key not getting found here, handle that
@@ -69,8 +59,18 @@ func updateFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	getFlatEarthGraph(w, r)
 }
 
+func getProviderSchema(w http.ResponseWriter, r *http.Request) {
+	schema, err := commands["provider-schema"].GetProviderSchema(args[0])
+	check(err)
+	w.Write(schema)
+}
+
 func startServer(commands map[string]FlatEarthCommand, args []string) {
 	http.HandleFunc("/get-flat-earth-graph", getFlatEarthGraph)
 	http.HandleFunc("/update-flat-earth-graph", updateFlatEarthGraph)
+	http.HandleFunc("/get-provider-schema", getProviderSchema)
+	// kanishk98: if this port is in use, the app just crashes with a garbage error.
+	// handle that case early on and either switch to another port (preferably) 
+	// or present some usable info to the user
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
