@@ -36,6 +36,9 @@ func getFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	w.Write(graphBytes)
 }
 
+// kanishk98: consider using json as an intermediary here for cleaner
+// and more reliable code
+// maybe we could use createTfElement() as a reference.
 func updateFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	check(err)
@@ -72,5 +75,6 @@ func startServer(commands map[string]FlatEarthCommand, args []string) {
 	// kanishk98: if this port is in use, the app just crashes with a garbage error.
 	// handle that case early on and either switch to another port (preferably) 
 	// or present some usable info to the user
+	log.Println("Starting server 💩")
 	log.Fatal(http.ListenAndServe(":8080", nil))
 }
