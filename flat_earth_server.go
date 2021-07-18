@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
 )
 
 type FlatEarthGraphUpdateRequest struct {
@@ -36,9 +39,7 @@ func getFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	w.Write(graphBytes)
 }
 
-// kanishk98: consider using json as an intermediary here for cleaner
-// and more reliable code
-// maybe we could use createTfElement() as a reference.
+// kanishk98: could we use hclwrite here instead? otherwise we're just using string manipulation
 func updateFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	check(err)
@@ -69,6 +70,9 @@ func getProviderSchema(w http.ResponseWriter, r *http.Request) {
 }
 
 func startServer(commands map[string]FlatEarthCommand, args []string) {
+	var server http.Server
+	server.Addr = ":8080"
+
 	http.HandleFunc("/get-flat-earth-graph", getFlatEarthGraph)
 	http.HandleFunc("/update-flat-earth-graph", updateFlatEarthGraph)
 	http.HandleFunc("/get-provider-schema", getProviderSchema)
@@ -76,5 +80,20 @@ func startServer(commands map[string]FlatEarthCommand, args []string) {
 	// handle that case early on and either switch to another port (preferably) 
 	// or present some usable info to the user
 	log.Println("Starting server 💩")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	idleConnsClosed := make(chan struct {})
+	go func() {
+		sigint := make(chan os.Signal, 1)
+		signal.Notify(sigint, os.Interrupt)
+		<-sigint
+		if err := server.Shutdown(context.Background()); err != nil {
+			// error from closing listeners, or context timeout
+			log.Fatalf("Failed to close connection: %v", err)
+		}
+		close(idleConnsClosed)
+	}()
+	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		// error starting or closing listener
+		log.Fatalf("HTTP server ListenAndServe: %v", err)
+	}
+	<-idleConnsClosed
 }
