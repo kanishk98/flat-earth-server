@@ -1,5 +1,20 @@
-## Kanishk's Terraform Playground
+## Flat Earth
 
-This is _not_ meant to be a legitimate Terraform replacement. It's just a place for me to mess around.
+I messed around with TF and gave it a fancy name to make myself feel better about it.
 
-It looks like we need to run a `terraform init` before we run `terraform <anything>` if we're not providing TF with a state file, otherwise it fails to load the required providers and cannot provide the graph we need.
+### Schema
+
+For creating a new block, send this sort of request to `/create-new-block`:
+
+```json
+{
+  "blockType": "resource",
+  "blockName": "aws_msk_cluster",
+  "attributes": {
+    "name": {
+      "type": "string",
+      "value": "cool-cluster"
+    }
+  }
+}
+```
