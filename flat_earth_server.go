@@ -144,6 +144,12 @@ func createNewBlock(w http.ResponseWriter, r *http.Request) {
 	}
 	file := hclwrite.NewFile()
 	fileBody := file.Body()
+	block, _, _ := getMatchingBlock(args[0], w, blockType.(string), []string{blockName.(string), blockLabel.(string)})
+	if block != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Block " + block.Type() + " " + blockName.(string) + "_" + blockLabel.(string) + " already exists."))
+		return
+	}
 	newBlock := fileBody.AppendNewBlock(blockType.(string), []string{blockName.(string), blockLabel.(string)})
 	attributes, err := getKeyValue("attributes", newBlockRequest)
 	if check(err, w) {
@@ -160,6 +166,16 @@ func createNewBlock(w http.ResponseWriter, r *http.Request) {
 		}
 		newBlock.Body().SetAttributeValue(attributeKey, getCtyValue(valueType.(string), valueValue))
 	}
+	// append file.Bytes() to existing file, if it already exists
+	isPrimary, err := getKeyValue("isPrimary", newBlockRequest)
+	if check(err, w) {
+		return
+	}
+	fileName, err := getFileName(args[0], isPrimary.(bool), blockName.(string), blockLabel.(string), newBlockRequest, w)
+	if check(err, w) {
+		return
+	}
+	writeToFile(fileName, file.Bytes(), w)
 	w.Write(file.Bytes())
 }
 
@@ -177,7 +193,7 @@ func startServer(commands map[string]FlatEarthCommand, args []string) {
 	// kanishk98: if this port is in use, the app just crashes with a garbage error.
 	// handle that case early on and either switch to another port (preferably)
 	// or present some usable info to the user
-	log.Println("Starting server 💩")
+	log.Println("Starting server...")
 	idleConnsClosed := make(chan struct{})
 	go func() {
 		sigint := make(chan os.Signal, 1)
