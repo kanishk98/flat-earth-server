@@ -14,7 +14,6 @@ import (
 
 	"github.com/hashicorp/hcl/v2"
 	"github.com/hashicorp/hcl/v2/hclwrite"
-	"github.com/zclconf/go-cty/cty"
 )
 
 type FlatEarthGraphUpdateRequest struct {
@@ -22,7 +21,7 @@ type FlatEarthGraphUpdateRequest struct {
 	BlockLabel    string
 	BlockName     string
 	AttributeName string
-	NewValue      string
+	NewValue      interface{}
 	AttributeType string
 }
 
@@ -108,7 +107,7 @@ func updateFlatEarthGraph(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	block, fileName, hclConfig := getMatchingBlock(args[0], w, updateRequest.BlockType, []string{updateRequest.BlockName, updateRequest.BlockLabel})
-	block.Body().SetAttributeValue(updateRequest.AttributeName, cty.StringVal(updateRequest.NewValue))
+	block.Body().SetAttributeValue(updateRequest.AttributeName, getCtyValue(updateRequest.AttributeType, updateRequest.NewValue))
 	err = ioutil.WriteFile(fileName, hclConfig.Bytes(), 0644)
 	if check(err, w) {
 		return
@@ -159,12 +158,7 @@ func createNewBlock(w http.ResponseWriter, r *http.Request) {
 		if check(err, w) {
 			return
 		}
-		switch valueType {
-		case "string":
-			newBlock.Body().SetAttributeValue(attributeKey, cty.StringVal(valueValue.(string)))
-		case "object":
-			newBlock.Body().SetAttributeValue(attributeKey, cty.ObjectVal(valueValue.(map[string]cty.Value)))
-		}
+		newBlock.Body().SetAttributeValue(attributeKey, getCtyValue(valueType.(string), valueValue))
 	}
 	w.Write(file.Bytes())
 }
