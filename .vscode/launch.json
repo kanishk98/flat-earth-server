@@ -10,7 +10,7 @@
             "request": "launch",
             "mode": "auto",
             "program": "${workspaceFolder}",
-            "args": ["/home/codespace/personal"]
+            "args": ["/home/kanishk/Documents/github/terraform-aws-examples/01-sample-instance"]
         }
     ]
 }

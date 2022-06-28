@@ -18,6 +18,7 @@ import (
 
 func getCommands(
 	originalWorkingDir string,
+	dataDir string,
 	config *cliconfig.Config,
 	services *disco.Disco,
 	providerSrc getproviders.Source,
@@ -39,8 +40,6 @@ func getCommands(
 	if err != nil {
 		configDir = "" // No config dir available (e.g. looking up a home directory failed)
 	}
-
-	dataDir := os.Getenv("TF_DATA_DIR")
 
 	meta := command.Meta{
 		OriginalWorkingDir: originalWorkingDir,
@@ -69,6 +68,9 @@ func getCommands(
 
 	commands := map[string]FlatEarthCommand{
 		"flat-earth": &command.FlatEarthGraphCommand{
+			Meta: meta,
+		},
+		"provider-schema": &command.FlatEarthGraphCommand{
 			Meta: meta,
 		},
 	}
@@ -100,4 +102,5 @@ func credentialsSource(config *cliconfig.Config) (auth.CredentialsSource, error)
 
 type FlatEarthCommand interface {
 	Run(configPath string) (map[string]*configs.Resource, error)
+	GetProviderSchema(configPath string) ([]byte, error)
 }
