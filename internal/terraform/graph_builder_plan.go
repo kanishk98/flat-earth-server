@@ -78,6 +78,11 @@ func (b *PlanGraphBuilder) Build(path addrs.ModuleInstance) (*Graph, tfdiags.Dia
 	}).Build(path)
 }
 
+// This has to be the function we call from within the server code
+func (b *PlanGraphBuilder) BuildFlatEarthGraph(path addrs.ModuleInstance) map[string]*configs.Resource {
+	return b.Config.Module.ManagedResources
+}
+
 // See GraphBuilder
 func (b *PlanGraphBuilder) Steps() []GraphTransformer {
 	switch b.Operation {

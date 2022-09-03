@@ -590,6 +590,20 @@ func (c *Context) planGraph(config *configs.Config, prevRunState *states.State, 
 	}
 }
 
+func (c *Context) planFlatEarthGraph(config *configs.Config, prevRunState *states.State, opts *PlanOpts) map[string]*configs.Resource {
+	// TODO: consider if we need to alter behaviour based on plan modes
+	return (&PlanGraphBuilder{
+		Config:             config,
+		State:              prevRunState,
+		RootVariableValues: opts.SetVariables,
+		Plugins:            c.plugins,
+		Targets:            opts.Targets,
+		ForceReplace:       opts.ForceReplace,
+		skipRefresh:        opts.SkipRefresh,
+		Operation:          walkPlan,
+	}).BuildFlatEarthGraph(addrs.RootModuleInstance)
+}
+
 func (c *Context) driftedResources(config *configs.Config, oldState, newState *states.State, moves refactoring.MoveResults) ([]*plans.ResourceInstanceChangeSrc, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
 
@@ -747,6 +761,13 @@ func (c *Context) PlanGraphForUI(config *configs.Config, prevRunState *states.St
 	graph, _, moreDiags := c.planGraph(config, prevRunState, opts)
 	diags = diags.Append(moreDiags)
 	return graph, diags
+}
+
+// Same as PlanGraphForUI, but modified rather naively for getting a map of managed resources
+func (c *Context) PlanFlatEarthGraph(config *configs.Config, prevRunState *states.State, mode plans.Mode) map[string]*configs.Resource {
+	opts := &PlanOpts{Mode: mode}
+
+	return c.planFlatEarthGraph(config, prevRunState, opts)
 }
 
 func blockedMovesWarningDiag(results refactoring.MoveResults) tfdiags.Diagnostic {
