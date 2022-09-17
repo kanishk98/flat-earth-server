@@ -13,11 +13,18 @@ type FlatEarthGraphCommand struct {
 }
 
 // this is a command only in name, we don't want to waste our time writing for a terminal's UI
-func (c *FlatEarthGraphCommand) Run(configPath string) (map[string]*configs.Resource, tfdiags.Diagnostics) {
+func (c *FlatEarthGraphCommand) Run() (map[string]*configs.Resource, tfdiags.Diagnostics) {
 	var diags tfdiags.Diagnostics
-	var err error
 	var planPath string
 	var planFile *planfile.Reader
+
+	cmdFlags := c.Meta.defaultFlagSet("flat-earth-graph")
+	configPath, err := ModulePath(cmdFlags.Args())
+
+	if err != nil {
+		diags.Append(err)
+		return nil, diags
+	}
 
 	if planPath != "" {
 		planFile, err = c.PlanFile(planPath)
@@ -60,7 +67,6 @@ func (c *FlatEarthGraphCommand) Run(configPath string) (map[string]*configs.Reso
 		return nil, diags
 	}
 
-	// Get the context
 	lr, _, ctxDiags := local.LocalRun(opReq)
 	diags = diags.Append(ctxDiags)
 	if ctxDiags.HasErrors() {
